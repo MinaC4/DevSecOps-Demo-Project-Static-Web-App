@@ -6,7 +6,6 @@ pipeline {
         IMAGE_TAG  = 'latest'
         HELM_RELEASE = 'iti-pro'
         CHART_PATH   = 'helm/iti-pro'
-        KUBECONFIG_CRED = 'kubeconfig'
     }
 
     stages {
@@ -39,29 +38,25 @@ pipeline {
 
         stage('Deploy with Helm') {
             steps {
-                withKubeConfig([credentialsId: KUBECONFIG_CRED, contextName: 'minikube', clusterName: 'minikube']) {
-                    sh '''
-                        helm upgrade --install ${HELM_RELEASE} ${CHART_PATH} \
-                            --namespace default \
-                            --set image.repository=${IMAGE_NAME} \
-                            --set image.tag=${IMAGE_TAG} \
-                            --set image.pullPolicy=Never \
-                            --wait \
-                            --timeout 3m
-                    '''
-                }
+                sh '''
+                    helm upgrade --install ${HELM_RELEASE} ${CHART_PATH} \
+                        --namespace default \
+                        --set image.repository=${IMAGE_NAME} \
+                        --set image.tag=${IMAGE_TAG} \
+                        --set image.pullPolicy=Never \
+                        --wait \
+                        --timeout 3m
+                '''
             }
         }
 
         stage('Verify Deployment') {
             steps {
-                withKubeConfig([credentialsId: KUBECONFIG_CRED, contextName: 'minikube', clusterName: 'minikube']) {
-                    sh '''
-                        kubectl get pods -l app.kubernetes.io/name=iti-pro
-                        kubectl get svc iti-pro
-                        kubectl rollout status deployment/iti-pro --timeout=90s
-                    '''
-                }
+                sh '''
+                    kubectl get pods -l app.kubernetes.io/name=iti-pro
+                    kubectl get svc iti-pro
+                    kubectl rollout status deployment/iti-pro --timeout=90s
+                '''
             }
         }
     }

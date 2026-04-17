@@ -6,7 +6,6 @@ pipeline {
         IMAGE_TAG  = 'latest'
         HELM_RELEASE = 'iti-pro'
         CHART_PATH   = 'helm/iti-pro'
-        EMAIL_TO     = 'kazbar2002@gmail.com'
     }
 
     triggers {
@@ -76,28 +75,9 @@ pipeline {
 
     post {
         success {
-            emailext (
-                subject: "SUCCESS: iti-pro Pipeline #${BUILD_NUMBER}",
-                body: '''Pipeline succeeded!<br>
-                        Job: ${JOB_NAME}<br>
-                        Build: ${BUILD_NUMBER}<br>
-                        Duration: ${BUILD_DURATION}<br>
-                        Check console output: ${BUILD_URL}''',
-                to: EMAIL_TO,
-                attachLog: false
-            )
             echo 'Pipeline completed successfully'
         }
         failure {
-            emailext (
-                subject: "FAILED: iti-pro Pipeline #${BUILD_NUMBER}",
-                body: '''Pipeline failed!<br>
-                        Job: ${JOB_NAME}<br>
-                        Build: ${BUILD_NUMBER}<br>
-                        Check console output: ${BUILD_URL}''',
-                to: EMAIL_TO,
-                attachLog: true
-            )
             echo 'Pipeline failed'
         }
     }

@@ -5,18 +5,15 @@ metadata:
   namespace: default
   labels:
     release: monitoring
-
 spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: iti-pro
-
   namespaceSelector:
     matchNames:
       - default
-
   endpoints:
-    - port: metrics
-      path: /metrics
-      interval: 15s
+    - port: http
+      interval: 30s
       scrapeTimeout: 10s
+      path: /

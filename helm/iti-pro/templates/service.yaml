@@ -7,14 +7,12 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - name: http
-      port: {{ .Values.service.port }}
+    - port: {{ .Values.service.port }}
       targetPort: http
+      protocol: TCP
+      name: http
       {{- if eq .Values.service.type "NodePort" }}
       nodePort: {{ .Values.service.nodePort }}
       {{- end }}
-    - name: metrics
-      port: 9113
-      targetPort: metrics
   selector:
     {{- include "iti-pro.selectorLabels" . | nindent 4 }}

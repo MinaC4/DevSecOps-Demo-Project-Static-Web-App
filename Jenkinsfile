@@ -31,19 +31,15 @@ pipeline {
         stage('Security Scan - Trivy') {
             steps {
                 script {
-                    sh '''
-                        trivy image --exit-code 1 --severity HIGH,CRITICAL ${IMAGE_NAME}:${IMAGE_TAG} || true
-                    '''
-                    sh '''
-                        trivy fs --exit-code 0 --severity HIGH,CRITICAL .
-                    '''
+                    sh 'trivy image --exit-code 1 --severity HIGH,CRITICAL ${IMAGE_NAME}:${IMAGE_TAG} || true'
+                    sh 'trivy fs --exit-code 0 --severity HIGH,CRITICAL .'
                 }
             }
         }
 
         stage('Deploy with Helm') {
             steps {
-                withKubeConfig(credentialsId: KUBECONFIG_CRED, contextName: 'minikube') {
+                withKubeConfig([credentialsId: KUBECONFIG_CRED, contextName: 'minikube']) {
                     sh '''
                         helm upgrade --install ${HELM_RELEASE} ${CHART_PATH} \
                             --namespace default \
@@ -51,7 +47,7 @@ pipeline {
                             --set image.tag=${IMAGE_TAG} \
                             --set image.pullPolicy=Never \
                             --wait \
-                            --timeout 2m
+                            --timeout 3m
                     '''
                 }
             }
@@ -59,11 +55,14 @@ pipeline {
 
         stage('Verify Deployment') {
             steps {
-                withKubeConfig(credentialsId: KUBECONFIG_CRED, contextName: 'minikube') {
+                withKubeConfig([credentialsId: KUBECONFIG_CRED, contextName: 'minikube']) {
                     sh '''
+                        echo "=== Pods ==="
                         kubectl get pods -l app.kubernetes.io/name=iti-pro
+                        echo "=== Service ==="
                         kubectl get svc iti-pro
-                        kubectl rollout status deployment/iti-pro --timeout=60s
+                        echo "=== Rollout Status ==="
+                        kubectl rollout status deployment/iti-pro --timeout=90s
                     '''
                 }
             }
@@ -72,7 +71,7 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline completed successfully'
+            echo ' Pipeline completed successfully'
         }
         failure {
             echo 'Pipeline failed'

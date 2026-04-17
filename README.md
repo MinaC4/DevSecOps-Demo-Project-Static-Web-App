@@ -90,7 +90,7 @@ docker build -t minac4/iti-pro:latest .
 ### 4) Deploy with Helm
 
 ```bash
-helm upgrade --install iti-pro helm/iti-pro \
+helm upgrade --install minac4-iti-pro helm/iti-pro \
   --namespace default \
   --set image.repository=minac4/iti-pro \
   --set image.tag=latest \
@@ -102,9 +102,9 @@ helm upgrade --install iti-pro helm/iti-pro \
 ### 5) Verify Deployment
 
 ```bash
-kubectl get pods -l app.kubernetes.io/name=iti-pro
-kubectl get svc iti-pro
-kubectl rollout status deployment/iti-pro --timeout=90s
+kubectl get pods -l app.kubernetes.io/name=minac4-iti-pro
+kubectl get svc minac4-iti-pro
+kubectl rollout status deployment/minac4-iti-pro --timeout=90s
 ```
 
 ### 6) Access the Application
@@ -112,7 +112,7 @@ kubectl rollout status deployment/iti-pro --timeout=90s
 Option A - NodePort:
 
 ```bash
-minikube service iti-pro --url
+minikube service minac4-iti-pro --url
 ```
 
 Option B - Ingress (if configured with host entries):
@@ -183,8 +183,8 @@ kubectl apply -f argocd-iti-pro.yaml
 Using ArgoCD CLI:
 
 ```bash
-argocd app get iti-pro
-argocd app sync iti-pro
+argocd app get minac4-iti-pro
+argocd app sync minac4-iti-pro
 ```
 
 Using kubectl (status check):
@@ -245,7 +245,7 @@ kubectl apply -f iti-pro-servicemonitor.yaml
 ```bash
 eval $(minikube docker-env)
 docker images | grep minac4/iti-pro
-kubectl set image deployment/iti-pro iti-pro=minac4/iti-pro:latest
+kubectl set image deployment/minac4-iti-pro minac4-iti-pro=minac4/iti-pro:latest
 ```
 
 Also ensure Helm value is set:
@@ -257,7 +257,7 @@ Also ensure Helm value is set:
 **Fix:**
 
 ```bash
-kubectl logs deployment/iti-pro
+kubectl logs deployment/minac4-iti-pro
 kubectl describe pod <pod-name>
 ```
 
@@ -286,7 +286,7 @@ You can also reduce Helm resource requests/limits in `helm/iti-pro/values.yaml`.
 Remove deployed resources:
 
 ```bash
-helm uninstall iti-pro -n default
+helm uninstall minac4-iti-pro -n default
 kubectl delete -f ingress.yaml --ignore-not-found
 kubectl delete -f iti-pro-servicemonitor.yaml --ignore-not-found
 kubectl delete -f argocd-iti-pro.yaml --ignore-not-found

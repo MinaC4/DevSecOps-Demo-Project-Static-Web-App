@@ -38,30 +38,7 @@ End-to-end flow:
 
 ![Project Structure Diagram](docs/images/project-structure-diagram.png)
 
-```text
-.
-|-- Dockerfile
-|-- Jenkinsfile
-|-- index.html
-|-- script.js
-|-- styles.css
-|-- ingress.yaml
-|-- argocd-iti-pro.yaml
-|-- iti-pro-servicemonitor.yaml
-|-- k8s/
-|   |-- deployment.yaml
-|   `-- service.yaml
-`-- helm/
-    |-- get_helm.sh
-    `-- iti-pro/
-        |-- Chart.yaml
-        |-- values.yaml
-        |-- .helmignore
-        `-- templates/
-            |-- _helpers.tpl
-            |-- deployment.yaml
-            `-- service.yaml
-```
+
 
 ### Key Files
 

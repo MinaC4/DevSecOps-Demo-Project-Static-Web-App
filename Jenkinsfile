@@ -39,7 +39,7 @@ pipeline {
 
         stage('Deploy with Helm') {
             steps {
-                withKubeConfig([credentialsId: KUBECONFIG_CRED, contextName: 'minikube']) {
+                withKubeConfig([credentialsId: KUBECONFIG_CRED, contextName: 'minikube', clusterName: 'minikube']) {
                     sh '''
                         helm upgrade --install ${HELM_RELEASE} ${CHART_PATH} \
                             --namespace default \
@@ -55,13 +55,10 @@ pipeline {
 
         stage('Verify Deployment') {
             steps {
-                withKubeConfig([credentialsId: KUBECONFIG_CRED, contextName: 'minikube']) {
+                withKubeConfig([credentialsId: KUBECONFIG_CRED, contextName: 'minikube', clusterName: 'minikube']) {
                     sh '''
-                        echo "=== Pods ==="
                         kubectl get pods -l app.kubernetes.io/name=iti-pro
-                        echo "=== Service ==="
                         kubectl get svc iti-pro
-                        echo "=== Rollout Status ==="
                         kubectl rollout status deployment/iti-pro --timeout=90s
                     '''
                 }
@@ -71,10 +68,10 @@ pipeline {
 
     post {
         success {
-            echo ' Pipeline completed successfully'
+            echo '✅ Pipeline completed successfully'
         }
         failure {
-            echo 'Pipeline failed'
+            echo '❌ Pipeline failed'
         }
     }
 }

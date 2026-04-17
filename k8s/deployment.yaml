@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: iti-pro
-        image: iti-pro
+        image: minac4/iti-pro:latest
         imagePullPolicy: Never   #mp
         ports:
         - containerPort: 8080

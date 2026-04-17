@@ -107,7 +107,7 @@ minikube addons enable ingress
 
 ```bash
 eval $(minikube docker-env)
-docker build -t iti-pro:latest .
+docker build -t minac4/iti-pro:latest .
 ```
 
 ### 4) Deploy with Helm
@@ -115,7 +115,7 @@ docker build -t iti-pro:latest .
 ```bash
 helm upgrade --install iti-pro helm/iti-pro \
   --namespace default \
-  --set image.repository=iti-pro \
+  --set image.repository=minac4/iti-pro \
   --set image.tag=latest \
   --set image.pullPolicy=Never \
   --wait \
@@ -155,7 +155,7 @@ The `Jenkinsfile` implements the following stages:
 
 2. **Build Docker Image**
    - Switches Docker context to Minikube.
-   - Builds `iti-pro:latest`.
+   - Builds `minac4/iti-pro:latest`.
 
 3. **Security Scan (Trivy)**
    - Fails pipeline on `CRITICAL` image vulnerabilities.
@@ -178,9 +178,9 @@ The `Jenkinsfile` implements the following stages:
 Trivy is used as a quality gate in CI:
 
 - Image scan (blocking):
-  - `trivy image --exit-code 1 --severity CRITICAL iti-pro:latest`
+  - `trivy image --exit-code 1 --severity CRITICAL minac4/iti-pro:latest`
 - Image scan (non-blocking report):
-  - `trivy image --exit-code 0 --severity HIGH iti-pro:latest`
+  - `trivy image --exit-code 0 --severity HIGH minac4/iti-pro:latest`
 - Filesystem scan (non-blocking report):
   - `trivy fs --exit-code 0 --severity HIGH,CRITICAL .`
 
@@ -267,8 +267,8 @@ kubectl apply -f iti-pro-servicemonitor.yaml
 
 ```bash
 eval $(minikube docker-env)
-docker images | grep iti-pro
-kubectl set image deployment/iti-pro iti-pro=iti-pro:latest
+docker images | grep minac4/iti-pro
+kubectl set image deployment/iti-pro iti-pro=minac4/iti-pro:latest
 ```
 
 Also ensure Helm value is set:

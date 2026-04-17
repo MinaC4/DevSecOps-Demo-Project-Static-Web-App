@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'iti-pro'
+        IMAGE_NAME = 'minac4/iti-pro'
         IMAGE_TAG  = 'latest'
         HELM_RELEASE = 'iti-pro'
         CHART_PATH   = 'helm/iti-pro'

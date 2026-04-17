@@ -6,6 +6,7 @@ pipeline {
         IMAGE_TAG  = 'latest'
         HELM_RELEASE = 'iti-pro'
         CHART_PATH   = 'helm/iti-pro'
+        EMAIL_TO     = 'kazbar2002@gmail.com'
     }
 
     triggers {
@@ -34,10 +35,7 @@ pipeline {
         stage('Security Scan - Trivy') {
             steps {
                 script {
-                    // Fail the build only if there are CRITICAL vulnerabilities
-                    sh '''
-                        trivy image --exit-code 1 --severity CRITICAL ${IMAGE_NAME}:${IMAGE_TAG}
-                    '''
+                    sh 'trivy image --exit-code 1 --severity CRITICAL ${IMAGE_NAME}:${IMAGE_TAG}'
                     sh 'trivy image --exit-code 0 --severity HIGH ${IMAGE_NAME}:${IMAGE_TAG} || true'
                     sh 'trivy fs --exit-code 0 --severity HIGH,CRITICAL .'
                 }
@@ -78,10 +76,29 @@ pipeline {
 
     post {
         success {
-            echo '✅ Pipeline completed successfully'
+            emailext (
+                subject: "SUCCESS: iti-pro Pipeline #${BUILD_NUMBER}",
+                body: '''Pipeline succeeded!<br>
+                        Job: ${JOB_NAME}<br>
+                        Build: ${BUILD_NUMBER}<br>
+                        Duration: ${BUILD_DURATION}<br>
+                        Check console output: ${BUILD_URL}''',
+                to: '${EMAIL_TO}',
+                attachLog: false
+            )
+            echo 'Pipeline completed successfully'
         }
         failure {
-            echo '❌ Pipeline failed'
+            emailext (
+                subject: "FAILED: iti-pro Pipeline #${BUILD_NUMBER}",
+                body: '''Pipeline failed!<br>
+                        Job: ${JOB_NAME}<br>
+                        Build: ${BUILD_NUMBER}<br>
+                        Check console output: ${BUILD_URL}''',
+                to: '${EMAIL_TO}',
+                attachLog: true
+            )
+            echo 'Pipeline failed'
         }
     }
 }

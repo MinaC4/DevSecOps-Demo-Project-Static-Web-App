@@ -36,6 +36,8 @@ End-to-end flow:
 
 ## Project Structure
 
+![Project Structure Diagram](docs/images/project-structure-diagram.png)
+
 ```text
 .
 |-- Dockerfile

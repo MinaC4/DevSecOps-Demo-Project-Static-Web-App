@@ -83,7 +83,7 @@ pipeline {
                         Build: ${BUILD_NUMBER}<br>
                         Duration: ${BUILD_DURATION}<br>
                         Check console output: ${BUILD_URL}''',
-                to: '${EMAIL_TO}',
+                to: EMAIL_TO,
                 attachLog: false
             )
             echo 'Pipeline completed successfully'
@@ -95,7 +95,7 @@ pipeline {
                         Job: ${JOB_NAME}<br>
                         Build: ${BUILD_NUMBER}<br>
                         Check console output: ${BUILD_URL}''',
-                to: '${EMAIL_TO}',
+                to: EMAIL_TO,
                 attachLog: true
             )
             echo 'Pipeline failed'

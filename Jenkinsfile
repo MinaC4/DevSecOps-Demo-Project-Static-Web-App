@@ -8,6 +8,10 @@ pipeline {
         CHART_PATH   = 'helm/iti-pro'
     }
 
+    triggers {
+        githubPush()
+    }
+
     stages {
         stage('Checkout Code') {
             steps {
@@ -30,9 +34,20 @@ pipeline {
         stage('Security Scan - Trivy') {
             steps {
                 script {
-                    sh 'trivy image --exit-code 1 --severity HIGH,CRITICAL ${IMAGE_NAME}:${IMAGE_TAG} || true'
+                    // Fail the build only if there are CRITICAL vulnerabilities
+                    sh '''
+                        trivy image --exit-code 1 --severity CRITICAL ${IMAGE_NAME}:${IMAGE_TAG}
+                    '''
+                    sh 'trivy image --exit-code 0 --severity HIGH ${IMAGE_NAME}:${IMAGE_TAG} || true'
                     sh 'trivy fs --exit-code 0 --severity HIGH,CRITICAL .'
                 }
+            }
+        }
+
+        stage('Tests') {
+            steps {
+                echo 'Running tests...'
+                sh 'echo "Placeholder for unit/integration tests"'
             }
         }
 

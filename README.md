@@ -17,14 +17,14 @@ It covers the full delivery lifecycle from source code to secure deployment usin
 
 End-to-end flow:
 
-**Developer -> GitHub -> Jenkins -> Docker Build -> Trivy Scan -> Helm Deploy -> Kubernetes -> (Optional ArgoCD & Monitoring)**
+**Developer -> GitHub -> Jenkins -> Trivy Scan -> Helm Deploy -> Kubernetes -> (Optional ArgoCD & Monitoring)**
 
 ### Pipeline Flow Details
 
 1. Developer pushes code to GitHub.
 2. Jenkins pipeline is triggered (`githubPush` trigger).
 3. Jenkins checks out source code.
-4. Docker image is built inside Minikube Docker daemon.
+4. Jenkins uses the prebuilt Docker Hub image `minac4/iti-pro:latest`.
 5. Trivy scans the image and repository for vulnerabilities.
 6. Helm deploys/updates the release on Kubernetes.
 7. Kubernetes runs the app and exposes it via Service/Ingress.
@@ -80,11 +80,10 @@ minikube start
 minikube addons enable ingress
 ```
 
-### 3) Build Docker Image Inside Minikube
+### 3) Use the Prebuilt Docker Hub Image
 
 ```bash
-eval $(minikube docker-env)
-docker build -t minac4/iti-pro:latest .
+docker pull minac4/iti-pro:latest
 ```
 
 ### 4) Deploy with Helm
@@ -94,7 +93,7 @@ helm upgrade --install minac4-iti-pro helm/iti-pro \
   --namespace default \
   --set image.repository=minac4/iti-pro \
   --set image.tag=latest \
-  --set image.pullPolicy=Never \
+  --set image.pullPolicy=IfNotPresent \
   --wait \
   --timeout 3m
 ```
@@ -130,9 +129,8 @@ The `Jenkinsfile` implements the following stages:
 1. **Checkout Code**
    - Pulls source code from SCM.
 
-2. **Build Docker Image**
-   - Switches Docker context to Minikube.
-   - Builds `minac4/iti-pro:latest`.
+2. **Use Docker Hub Image**
+   - Uses the prebuilt image `minac4/iti-pro:latest`.
 
 3. **Security Scan (Trivy)**
    - Fails pipeline on `CRITICAL` image vulnerabilities.
@@ -239,17 +237,16 @@ kubectl apply -f iti-pro-servicemonitor.yaml
 
 ### 1) `ImagePullBackOff`
 
-**Cause:** Cluster cannot find image in a remote registry while image is local to Minikube.  
+**Cause:** Cluster cannot pull `minac4/iti-pro:latest` due to tag, registry, or authentication issues.  
 **Fix:**
 
 ```bash
-eval $(minikube docker-env)
-docker images | grep minac4/iti-pro
-kubectl set image deployment/minac4-iti-pro minac4-iti-pro=minac4/iti-pro:latest
+docker pull minac4/iti-pro:latest
+kubectl set image deployment/minac4-iti-pro minac4-iti-pro=minac4/iti-pro:latest --record
 ```
 
 Also ensure Helm value is set:
-- `image.pullPolicy=Never`
+- `image.pullPolicy=IfNotPresent`
 
 ### 2) `CrashLoopBackOff`
 

@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iti-pro-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: iti-pro
+  template:
+    metadata:
+      labels:
+        app: iti-pro
+    spec:
+      containers:
+      - name: iti-pro
+        image: iti-pro
+        imagePullPolicy: Never   #mp
+        ports:
+        - containerPort: 8080

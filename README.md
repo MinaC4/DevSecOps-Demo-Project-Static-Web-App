@@ -15,6 +15,10 @@ It covers the full delivery lifecycle from source code to secure deployment usin
 
 ## Architecture Overview
 
+![Project Structure Diagram] <img width="1536" height="1024" alt="3f0eaa6d-9fe5-4b08-9ce1-aced20ee1408" src="https://github.com/user-attachments/assets/29b724ac-128d-49fd-a215-6cbcbec4ebc9" />
+
+
+
 End-to-end flow:
 
 **Developer -> GitHub -> Jenkins -> Trivy Scan -> Helm Deploy -> Kubernetes -> (Optional ArgoCD & Monitoring)**
@@ -36,7 +40,6 @@ End-to-end flow:
 
 ## Project Structure
 
-![Project Structure Diagram] <img width="1536" height="1024" alt="3f0eaa6d-9fe5-4b08-9ce1-aced20ee1408" src="https://github.com/user-attachments/assets/29b724ac-128d-49fd-a215-6cbcbec4ebc9" />
 
 
 

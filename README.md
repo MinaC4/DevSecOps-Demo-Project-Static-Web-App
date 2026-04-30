@@ -36,7 +36,8 @@ End-to-end flow:
 
 ## Project Structure
 
-![Project Structure Diagram](docs/images/project-structure-diagram.png)
+![Project Structure Diagram] <img width="1536" height="1024" alt="3f0eaa6d-9fe5-4b08-9ce1-aced20ee1408" src="https://github.com/user-attachments/assets/29b724ac-128d-49fd-a215-6cbcbec4ebc9" />
+
 
 
 

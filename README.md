@@ -75,8 +75,8 @@ Install and configure the following tools:
 ---
 
 ```markdown
-### 1) Start Minikube
-```bash
+Start Minikube
+
 minikube start
 ```
 

@@ -13,10 +13,6 @@ In short: This is a **learning/experimental project**, not intended for producti
 
 ---
 
-## Architecture Overview
-[Project Structure Diagram]  
-<img width="1536" height="1024" alt="Project Architecture" src="https://github.com/user-attachments/assets/b7787b3c-c0c1-4126-a8d8-89e05821f633" />
-
 
 
 This project demonstrates a complete **DevSecOps workflow** for a simple static web application served by **Nginx**.

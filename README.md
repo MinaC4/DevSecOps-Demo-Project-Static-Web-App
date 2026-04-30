@@ -69,130 +69,209 @@ Install and configure the following tools:
 ---
 ## Setup & Installation
 
+
+---
+
+```markdown
 ### 1) Start Minikube
 ```bash
 minikube start
-2) Enable Ingress Addon
-Bashminikube addons enable ingress
-3) Use the Prebuilt Docker Hub Image
-Bashdocker pull minac4/iti-pro:latest
-4) Deploy with Helm
-Bashhelm upgrade --install minac4-iti-pro helm/iti-pro \
+```
+
+### 2) Enable Ingress Addon
+```bash
+minikube addons enable ingress
+```
+
+### 3) Use the Prebuilt Docker Hub Image
+```bash
+docker pull minac4/iti-pro:latest
+```
+
+### 4) Deploy with Helm
+```bash
+helm upgrade --install minac4-iti-pro helm/iti-pro \
   --namespace default \
   --set image.repository=minac4/iti-pro \
   --set image.tag=latest \
   --set image.pullPolicy=IfNotPresent \
   --wait \
   --timeout 3m
-5) Verify Deployment
-Bashkubectl get pods -l app.kubernetes.io/name=minac4-iti-pro
+```
+
+### 5) Verify Deployment
+```bash
+kubectl get pods -l app.kubernetes.io/name=minac4-iti-pro
 kubectl get svc minac4-iti-pro
 kubectl rollout status deployment/minac4-iti-pro --timeout=90s
-6) Access the Application
-Option A - NodePort:
-Bashminikube service minac4-iti-pro --url
-Option B - Ingress:
-Bashkubectl get ingress
+```
 
-CI/CD Pipeline (Jenkins)
-The Jenkinsfile implements the following stages:
+### 6) Access the Application
 
-Checkout Code
-Pulls source code from SCM.
+**Option A - NodePort:**
+```bash
+minikube service minac4-iti-pro --url
+```
 
-Use Docker Hub Image
-Uses the prebuilt image minac4/iti-pro:latest.
+**Option B - Ingress:**
+```bash
+kubectl get ingress
+```
 
-Security Scan (Trivy)
-Fails pipeline on CRITICAL image vulnerabilities.
-Reports HIGH findings without failing the build.
-Scans filesystem for HIGH,CRITICAL.
+---
 
-Tests
-Placeholder stage for unit/integration tests.
+### CI/CD Pipeline (Jenkins)
 
-Deploy (Helm)
-Runs helm upgrade --install with image overrides.
+The `Jenkinsfile` implements the following stages:
 
-Verify
-Checks pods, service, and deployment rollout status.
+1. **Checkout Code**  
+   - Pulls source code from SCM.
 
+2. **Use Docker Hub Image**  
+   - Uses the prebuilt image `minac4/iti-pro:latest`.
 
+3. **Security Scan (Trivy)**  
+   - Fails pipeline on `CRITICAL` image vulnerabilities.  
+   - Reports `HIGH` findings without failing the build.  
+   - Scans filesystem for `HIGH,CRITICAL`.
 
-Security (Trivy)
+4. **Tests**  
+   - Placeholder stage for unit/integration tests.
+
+5. **Deploy (Helm)**  
+   - Runs `helm upgrade --install` with image overrides.
+
+6. **Verify**  
+   - Checks pods, service, and deployment rollout status.
+
+---
+
+### Security (Trivy)
+
 Trivy is used as a quality gate in CI:
 
-Image scan (blocking):
-trivy image --exit-code 1 --severity CRITICAL minac4/iti-pro:latest
-Image scan (non-blocking report):
-trivy image --exit-code 0 --severity HIGH minac4/iti-pro:latest
-Filesystem scan (non-blocking report):
-trivy fs --exit-code 0 --severity HIGH,CRITICAL .
+- **Image scan (blocking):**  
+  ```bash
+  trivy image --exit-code 1 --severity CRITICAL minac4/iti-pro:latest
+  ```
 
-Severity Handling Strategy
+- **Image scan (non-blocking report):**  
+  ```bash
+  trivy image --exit-code 0 --severity HIGH minac4/iti-pro:latest
+  ```
 
-CRITICAL vulnerabilities: Pipeline fails and deployment is blocked.
-HIGH vulnerabilities: Logged for review/remediation, pipeline continues.
+- **Filesystem scan (non-blocking report):**  
+  ```bash
+  trivy fs --exit-code 0 --severity HIGH,CRITICAL .
+  ```
 
+#### Severity Handling Strategy
+- **CRITICAL** vulnerabilities: Pipeline fails and deployment is blocked.  
+- **HIGH** vulnerabilities: Logged for review/remediation, pipeline continues.
 
-ArgoCD (Optional)
-This repository includes argocd-iti-pro.yaml to deploy the Helm chart via GitOps.
-Deploy ArgoCD Application
-Bashkubectl apply -f argocd-iti-pro.yaml
-Check and Sync
-Using ArgoCD CLI:
-Bashargocd app get minac4-iti-pro
+---
+
+### ArgoCD (Optional)
+
+This repository includes `argocd-iti-pro.yaml` to deploy the Helm chart via GitOps.
+
+#### Deploy ArgoCD Application
+```bash
+kubectl apply -f argocd-iti-pro.yaml
+```
+
+#### Check and Sync
+
+**Using ArgoCD CLI:**
+```bash
+argocd app get minac4-iti-pro
 argocd app sync minac4-iti-pro
-Using kubectl:
-Bashkubectl -n argocd get applications
+```
 
-Monitoring (Optional)
+**Using kubectl:**
+```bash
+kubectl -n argocd get applications
+```
+
+---
+
+### Monitoring (Optional)
+
 You can integrate Prometheus & Grafana for observability.
 
-Apply the provided ServiceMonitor:
+- Apply the provided ServiceMonitor:
+```bash
+kubectl apply -f iti-pro-servicemonitor.yaml
+```
 
-Bashkubectl apply -f iti-pro-servicemonitor.yaml
+- Ensure Prometheus Operator selects the `release: monitoring` label.
+- Confirm target discovery in Prometheus UI.
+- Build Grafana dashboards for request rate, availability, and latency (if metrics are available).
 
-Ensure Prometheus Operator selects the release: monitoring label.
-Confirm target discovery in Prometheus UI.
-Build Grafana dashboards for request rate, availability, and latency (if metrics are available).
+#### ServiceMonitor Purpose
+`iti-pro-servicemonitor.yaml` tells Prometheus how to scrape the service endpoint (`port: http`, `path: /`, `interval: 30s`) from the `default` namespace.
 
-ServiceMonitor Purpose
-iti-pro-servicemonitor.yaml tells Prometheus how to scrape the service endpoint (port: http, path: /, interval: 30s) from the default namespace.
+---
 
-Screenshots
-Jenkins Pipeline
+### Screenshots
+
+#### Jenkins Pipeline
 <img src="docs/images/jenkins-pipeline.png" alt="Jenkins Pipeline">
-ArgoCD Application
+
+#### ArgoCD Application
 <img src="docs/images/argocd.png" alt="ArgoCD Application">
-Prometheus Query View
+
+#### Prometheus Query View
 <img src="docs/images/prometheus.png" alt="Prometheus Query">
-Kubernetes Dashboard
+
+#### Kubernetes Dashboard
 <img src="docs/images/kubernetes-dashboard.png" alt="Kubernetes Dashboard">
 
-Troubleshooting
-1) ImagePullBackOff
-Cause: Cluster cannot pull minac4/iti-pro:latest.
-Fix:
-Bashdocker pull minac4/iti-pro:latest
-kubectl set image deployment/minac4-iti-pro minac4-iti-pro=minac4/iti-pro:latest --record
-Make sure image.pullPolicy=IfNotPresent is set in Helm values.
-2) CrashLoopBackOff
-Cause: Application process fails, wrong port, or failing probes.
-Fix:
-Bashkubectl logs deployment/minac4-iti-pro
-kubectl describe pod <pod-name>
-Verify the container listens on port 8080 and probes are correctly configured.
-3) Resource Quota / Scheduling Errors
-Fix:
-Bashminikube stop
-minikube start --cpus=4 --memory=4096
-You can also reduce resource requests/limits in helm/iti-pro/values.yaml.
+---
 
-Clean Up
-Bashhelm uninstall minac4-iti-pro -n default
+### Troubleshooting
+
+#### 1) `ImagePullBackOff`
+**Cause:** Cluster cannot pull `minac4/iti-pro:latest`.  
+
+**Fix:**
+```bash
+docker pull minac4/iti-pro:latest
+kubectl set image deployment/minac4-iti-pro minac4-iti-pro=minac4/iti-pro:latest --record
+```
+Make sure `image.pullPolicy=IfNotPresent` is set in Helm values.
+
+#### 2) `CrashLoopBackOff`
+**Cause:** Application process fails, wrong port, or failing probes.  
+
+**Fix:**
+```bash
+kubectl logs deployment/minac4-iti-pro
+kubectl describe pod <pod-name>
+```
+Verify the container listens on port `8080` and probes are correctly configured.
+
+#### 3) Resource Quota / Scheduling Errors
+
+**Fix:**
+```bash
+minikube stop
+minikube start --cpus=4 --memory=4096
+```
+You can also reduce resource requests/limits in `helm/iti-pro/values.yaml`.
+
+---
+
+### Clean Up
+
+```bash
+helm uninstall minac4-iti-pro -n default
 kubectl delete -f ingress.yaml --ignore-not-found
 kubectl delete -f iti-pro-servicemonitor.yaml --ignore-not-found
 kubectl delete -f argocd-iti-pro.yaml --ignore-not-found
+```
+
 To delete the Minikube cluster:
-Bashminikube delete
+```bash
+minikube delete
+```
